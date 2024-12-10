@@ -178,9 +178,10 @@ class nEXOFitModel:
    def GenerateDataset( self ):
        if self.full_distribution is None:
           self.GenerateModelDistribution()
- 
        negative_mask = self.full_distribution.values < 0.
+       #negative_mask = np.where(self.full_distribution < 0.)
        nonnegative_distribution = self.full_distribution.values
+       #nonnegative_distribution = self.full_distribution
        nonnegative_distribution[negative_mask] = \
                       np.zeros( nonnegative_distribution[negative_mask].shape )
        # Generates a Poisson sample of each bin
@@ -196,8 +197,10 @@ class nEXOFitModel:
        if self.full_distribution is None:
           self.GenerateModelDistribution()
  
-       negative_mask = self.full_distribution.values < 0.
-       nonnegative_distribution = self.full_distribution.values
+       #negative_mask = self.full_distribution.values < 0.
+       negative_mask = np.where(self.full_distribution < 0.)
+       #nonnegative_distribution = self.full_distribution.values
+       nonnegative_distribution = self.full_distribution
        nonnegative_distribution[negative_mask] = \
                       np.zeros( nonnegative_distribution[negative_mask].shape )
        # Generates a Poisson sample of each bin

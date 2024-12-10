@@ -23,10 +23,10 @@ class nEXOMaterialsDBInterface:
       username = input("Username: ")
       from getpass import getpass
       password = getpass()
-      client = CouchDB(username, password, url='http://nexo.ph.ua.edu/', connect=True, use_basic_auth=True)
+      client = CouchDB(username, password, url='https://nexo.ph.ua.edu/', connect=True, use_basic_auth=True)
 
     elif server_choice == 'default':
-      client = CouchDB('xenon','136', url='http://nexo.ph.ua.edu/', connect=True, use_basic_auth=True)
+      client = CouchDB('xenon','136', url='https://nexo.ph.ua.edu/', connect=True, use_basic_auth=True)
     
     self.db = client['material_database']
     self.keymap = {}   # key-to-id map

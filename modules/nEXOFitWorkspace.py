@@ -255,6 +255,7 @@ class nEXOFitWorkspace:
           print('\nAborting without creating a ComponentsTable...\n')
           return
        elif not create_histograms_from_trees and not download_mc_data:
+          print(f'======== Histograms_file: {histograms_file}')
           if histograms_file.endswith(".h5"):
               df_mc_histograms = pd.read_hdf( histograms_file, key='SimulationHistograms' )
           elif histograms_file.endswith(".pkl.gz") or histograms_file.endswith(".pkl"):
@@ -300,7 +301,7 @@ class nEXOFitWorkspace:
 
            for measurement in radioassay_data:
 
-               thispdf = pd.Series()
+               thispdf = pd.Series(dtype=object)
 
                if data_type == 'R':
                   print('          * {:<17} {:>10.9} +/- {:<10.9} {:<10} ({})'.format( \
@@ -323,9 +324,22 @@ class nEXOFitWorkspace:
                  
                # Remove all spaces, parentheses, and hyphens from the names
                component_name = component['name'].replace('(','').replace(')','').replace(' ','')
+               ######################
+               ### Added by Miao Yu for parsering issues solution ###
+               if 'Xe-137' in component_name:
+                   component_name = component_name.replace("Xe-137", '')
+               if 'Rn-222' in component_name:
+                   component_name = component_name.replace("Rn-222", '')
+               if 'Ar-42' in component_name:
+                   component_name = component_name.replace("Ar-42", '')
+               ######################
+
                isotope_name = ( measurement['isotope'].split(' ')[0] ).replace('-','')
 
                pdf_name = '{}_{}'.format(isotope_name,component_name)
+               print(f'component_name: {component["name"]} -> {component_name}')
+               print(f'isotope_name: measurement["isotope"] -> {isotope_name}')
+               print(f'pdf_name: {pdf_name}')
                
                thispdf['PDFName'] = pdf_name
                thispdf['Component'] = component['name']
@@ -379,6 +393,8 @@ class nEXOFitWorkspace:
                thispdf['HistogramAxisNames'] = None
 
                for index, row in df_mc_histograms.iterrows():
+                   print(isotope_name, row['Filename'])
+                   print(thispdf['MC ID'], row['Filename'])
 
                    if isotope_name in row['Filename'] and\
                       thispdf['MC ID'] in row['Filename']:
@@ -388,6 +404,8 @@ class nEXOFitWorkspace:
                if thispdf['Histogram'] is None:
                    print('\n          WARNING: NO MC HISTOGRAM FOUND FOR {}'.format( thispdf['PDFName'] ))
                    print('          Isotope: {}\t MC ID: {}\n'.format(isotope_name, thispdf['MC ID'] ))
+               else:
+                   print(f'\n THERE IS MC HISTOGRAM FOR {thispdf["PDFName"]}.')
              
                # Get tie integral in the input histogram
                if thispdf['Histogram'] is None:
@@ -719,6 +737,9 @@ class nEXOFitWorkspace:
 
          if not (row['Group'] in self.df_group_pdfs['Group'].values):
 
+             if 'Rn222' in row['Group']:
+                print(f'The total expected counts for {row["PDFName"]} will be: {totalExpectedCounts}.')
+            
              new_group_row = { 'Group' : row['Group'], \
                                'Histogram' : normalized_histogram * \
                                              totalExpectedCounts, \
@@ -727,6 +748,8 @@ class nEXOFitWorkspace:
              self.df_group_pdfs = self.df_group_pdfs.append(new_group_row,ignore_index=True)
  
          else:
+             if 'Rn222' in row['Group']:
+                print(f'The total expected counts for {row["PDFName"]} will be: {totalExpectedCounts}.')
 
              group_mask = row['Group']==self.df_group_pdfs['Group']            
  
